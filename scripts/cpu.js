@@ -1,34 +1,34 @@
 class CPU {
-  constructor(renderer, keyboard, speaker) {
-    this.renderer = renderer;
-    this.keyboard = keyboard;
-    this.speaker = speaker;
+	constructor(renderer, keyboard, speaker) {
+		this.renderer = renderer;
+		this.keyboard = keyboard;
+		this.speaker = speaker;
 
-    // 4KB (4096 bytes) of memory
-    this.memory = new Uint8Array(4096);
+		// 4KB (4096 bytes) of memory
+		this.memory = new Uint8Array(4096);
 
-    // 16 8-bit registers
-    this.v = new Uint8Array(16);
+		// 16 8-bit registers
+		this.v = new Uint8Array(16);
 
-    // Stores memory addresses. Set this to 0 since we aren't storing anything at initialization.
-    this.i = 0;
+		// Stores memory addresses. Set this to 0 since we aren't storing anything at initialization.
+		this.i = 0;
 
-    // Timers
-    this.delayTimer = 0;
-    this.soundTimer = 0;
+		// Timers
+		this.delayTimer = 0;
+		this.soundTimer = 0;
 
-    // Program counter. Stores the currently executing address.
-    this.pc = 0x200;
+		// Program counter. Stores the currently executing address.
+		this.pc = 0x200;
 
-    // Don't initialize this with a size in order to avoid empty results.
-    this.stack = new Array();
+		// Don't initialize this with a size in order to avoid empty results.
+		this.stack = new Array();
 
-    // Some instructions require pausing, such as Fx0A.
-    this.paused = false;
+		// Some instructions require pausing, such as Fx0A.
+		this.paused = false;
 
-    this.speed = 10;
+		this.speed = 10;
     }
-
+    
     loadSpritesIntoMemory() {
         // Array of hex values for each sprite. Each sprite is 5 bytes.
         // The technical reference provides us with each one of these values.
@@ -50,7 +50,7 @@ class CPU {
             0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
             0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         ];
-
+    
         // According to the technical reference, sprites are stored in the interpreter section of memory starting at hex 0x000
         for (let i = 0; i < sprites.length; i++) {
             this.memory[i] = sprites[i];
@@ -66,23 +66,23 @@ class CPU {
     loadRom(romName) {
         var request = new XMLHttpRequest;
         var self = this;
-
+    
         // Handles the response received from sending (request.send()) our request
         request.onload = function() {
             // If the request response has content
             if (request.response) {
                 // Store the contents of the response in an 8-bit array
                 let program = new Uint8Array(request.response);
-
+    
                 // Load the ROM/program into memory
                 self.loadProgramIntoMemory(program);
             }
         }
-
+    
         // Initialize a GET request to retrieve the ROM from our roms folder
         request.open('GET', 'roms/' + romName);
         request.responseType = 'arraybuffer';
-
+    
         // Send the GET request
         request.send();
     }
@@ -98,7 +98,7 @@ class CPU {
         if (!this.paused) {
             this.updateTimers();
         }
-
+    
         this.playSound();
         this.renderer.render();
     }
@@ -107,7 +107,7 @@ class CPU {
         if (this.delayTimer > 0) {
             this.delayTimer -= 1;
         }
-
+    
         if (this.soundTimer > 0) {
             this.soundTimer -= 1;
         }
@@ -142,7 +142,7 @@ class CPU {
                         this.pc = this.stack.pop();
                         break;
                 }
-
+        
                 break;
             case 0x1000:
                 this.pc = (opcode & 0xFFF);
@@ -225,7 +225,7 @@ class CPU {
                         this.v[x] <<= 1;
                         break;
                 }
-
+        
                 break;
             case 0x9000:
                 if (this.v[x] !== this.v[y]) {
@@ -280,7 +280,7 @@ class CPU {
                         }
                         break;
                 }
-
+        
                 break;
             case 0xF000:
                 switch (opcode & 0xFF) {
@@ -329,9 +329,9 @@ class CPU {
                         }
                         break;
                 }
-
+        
                 break;
-
+        
             default:
                 throw new Error('Unknown opcode ' + opcode);
         }
